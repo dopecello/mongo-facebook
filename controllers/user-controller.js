@@ -1,10 +1,14 @@
 const { User } = require("../models");
 
 const userController = {
-
   //get all users
   getAllUsers(req, res) {
     User.find({})
+      .populate({
+        path: "comments",
+        select: "-__v",
+      })
+      .select("-__v")
       .sort({ _id: -1 })
       .then((dbUserData) => res.json(dbUserData))
       .catch((err) => {
@@ -16,6 +20,11 @@ const userController = {
   //get a user by an id
   getUserById({ params }, res) {
     User.findOne({ _id: params.id })
+      .populate({
+        path: "comments",
+        select: "-__v",
+      })
+      .select("-__v")
       .then((dbPizzaData) => res.json(dbPizzaData))
       .catch((err) => {
         console.log(err);
@@ -30,7 +39,7 @@ const userController = {
       .catch((err) => res.json(err));
   },
 
-  //update user 
+  //update user
   updateUser({ params, body }, res) {
     User.findOneAndUpdate({ _id: params.id }, body, {
       new: true,
