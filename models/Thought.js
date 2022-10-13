@@ -24,7 +24,7 @@ const ThoughtSchema = new Schema(
       type: String,
       required: [true, "Who wrote this thought?"],
     },
-    //   reactions: [reactionSchema] //create this later
+    reactions: [ReactionSchema], 
   },
   {
     toJSON: {
@@ -33,6 +33,47 @@ const ThoughtSchema = new Schema(
     id: false,
   }
 );
+
+const ReactionSchema = new Schema(
+  {
+    reactionId: {
+      type: Schema.Types.ObjectId,
+      default: () => new Types.ObjectId(), // ---> All this does is create a new ObjectId inside parent
+    },
+    reactionBody: {
+      type: String,
+      validate: {
+        validator: function (str) {
+          if (str.length <= 280) {
+            return;
+          }
+        },
+        message: "Don't use more than 280 characters for your reply.",
+      },
+      required: [true, "What's your reaction?"],
+    },
+    username: {
+      type: String,
+      required: [true, "Who wrote this reply?"],
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      get: (createdAtVal) => dateFormat(createdAtVal),
+    },
+  },
+  {
+    toJSON: {
+      getters: true,
+    },
+    id: false,
+  }
+);
+
+ThoughtSchema.virtual("friendCount").get(function () {
+  return this.reactions.length;
+});
+
 
 const Thought = model("Thought", ThoughtSchema);
 
